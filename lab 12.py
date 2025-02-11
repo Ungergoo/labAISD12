@@ -1,40 +1,58 @@
 import numpy as np
+from decimal import Decimal, getcontext
 
-def compute_series(X, t):
-    """Вычисляет сумму знакопеременного ряда до достижения заданной точности t."""
-    n = 1
-    sum_series = 0
-    prev_term = 0
-    sign = 1  # Знак первого слагаемого
+flag = 0
+precision = input('Введите число t > 0: ') 
 
-    while True:
-        # Вычисляем (n-1)! (факториал)
-        factorial = np.math.factorial(n - 1)
-        
-        # Возводим X в степень (n-1) поэлементно
-        X_power = np.power(X, n - 1)
-        
-        # Вычисляем поэлементный модуль X^n-1
-        term = np.sum(np.abs(X_power)) / factorial * sign
-        
-        # Если разница с предыдущим слагаемым меньше заданной точности, завершаем вычисления
-        if abs(term - prev_term) < t:
+while True:
+    try:
+        precision = int(precision)
+    except ValueError:
+        print('Ошибка: введено не число. Повторите ввод.')
+        precision = None
+    finally:
+        if precision is None:
+            pass
+        elif float(precision) < 0:
+            print('Ошибка: число меньше нуля. Повторите ввод.')
+        elif int(precision) == 0:
+            flag = 1
             break
-        
-        sum_series += term
-        prev_term = term
-        n += 1
-        sign *= -1  # Меняем знак
+        else:
+            getcontext().prec = precision  
+            break
+    precision = input('Введите число t > 0:')
 
-    return sum_series
+matrix_rank = np.random.randint(1, 11)  
+matrix_x = np.random.uniform(-1, 1, (matrix_rank, matrix_rank))  
+print('Матрица x:\n', matrix_x)
 
-# Генерация случайной матрицы X размером kxk (например, k = 3)
-k = 3
-X = np.random.random((k, k))  # Генерация случайной матрицы размером kxk
+n = 1
+calculated_matrix = matrix_x
+curr_answer = Decimal(0)  
+factorial_divisor = 1
 
-# Задание точности
-t = 1e-6
 
-# Вызов функции для вычисления суммы ряда
-result = compute_series(X, t)
-print(f"Результат суммы ряда: {result}")
+while True:
+    int_current_operator = n * 3 - 1
+
+    #3n - 1
+    calculated_matrix = np.multiply(calculated_matrix, matrix_x ** (3 * n - 1))
+
+    factorial_divisor *= (int_current_operator - 1) * (int_current_operator - 2) if int_current_operator > 2 else 1
+
+    if factorial_divisor == 0:  #делениe на ноль
+        factorial_divisor = 1
+
+    det_matrix = np.linalg.det(calculated_matrix)  
+    curr_answer += -1 * (Decimal(abs(det_matrix))) / Decimal(factorial_divisor)
+
+    n += 1 
+
+    if len(str(curr_answer).split('.')[1]) >= precision:
+        break
+
+if flag == 1:
+    curr_answer = curr_answer.quantize(Decimal(10) ** -precision)  #округление
+
+print('Ответ: ', curr_answer)
