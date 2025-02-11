@@ -1,8 +1,11 @@
+import math
+import random
 import numpy as np
 from decimal import Decimal, getcontext
 
+
 flag = 0
-precision = input('Введите число t > 0: ') 
+precision = input('Введите число t > 0: ')
 
 while True:
     try:
@@ -19,40 +22,37 @@ while True:
             flag = 1
             break
         else:
-            getcontext().prec = precision  
+            getcontext().prec = precision
             break
     precision = input('Введите число t > 0:')
 
-matrix_rank = np.random.randint(1, 11)  
-matrix_x = np.random.uniform(-1, 1, (matrix_rank, matrix_rank))  
-print('Матрица x:\n', matrix_x)
 
-n = 1
+matrix_rank = random.randint(1, 10)  
+matrix_x = np.random.uniform(-1, 1, (matrix_rank, matrix_rank)) 
+print('Матрица x:\n' + str(matrix_x))
+
+
+n = 1  
 calculated_matrix = matrix_x
-curr_answer = Decimal(0)  
 factorial_divisor = 1
+curr_answer = Decimal(0)
 
 
 while True:
-    int_current_operator = n * 3 - 1
+    int_current_operator = n - 1
 
-    #3n - 1
-    calculated_matrix = np.multiply(calculated_matrix, matrix_x ** (3 * n - 1))
+    calculated_matrix = np.multiply(calculated_matrix, matrix_x)  
 
-    factorial_divisor *= (int_current_operator - 1) * (int_current_operator - 2) if int_current_operator > 2 else 1
+    factorial_divisor = math.factorial(int_current_operator) if int_current_operator > 0 else 1
 
-    if factorial_divisor == 0:  #делениe на ноль
-        factorial_divisor = 1
-
-    det_matrix = np.linalg.det(calculated_matrix)  
-    curr_answer += -1 * (Decimal(abs(det_matrix))) / Decimal(factorial_divisor)
-
-    n += 1 
+    curr_answer += Decimal(np.linalg.det(calculated_matrix)) / Decimal(factorial_divisor)
 
     if len(str(curr_answer).split('.')[1]) >= precision:
         break
 
-if flag == 1:
-    curr_answer = curr_answer.quantize(Decimal(10) ** -precision)  #округление
+    n += 1  
 
-print('Ответ: ', curr_answer)
+if flag == 1:
+    curr_answer = math.ceil(float(curr_answer))
+
+print('Ответ: ' + str(curr_answer))
